@@ -32,11 +32,19 @@ public class AppSecurity extends WebSecurityConfigurerAdapter {  // exten class 
         UserDetails user = User.builder()
                 .username("singh")
                 .password(passwordEncoder.encode("singh"))
-                .roles("ADMIN")
+                .roles(ApplicationUserRole.STUDENT.name())
                 .build();
 
+
+        UserDetails user1 = User.builder()
+                .username("daljeet")
+                .password(passwordEncoder.encode("singh"))
+                .roles(ApplicationUserRole.ADMIN.name())
+                .build();
+
+
         return new InMemoryUserDetailsManager(
-                user
+                user,user1
         );
     }
 
@@ -46,10 +54,11 @@ public class AppSecurity extends WebSecurityConfigurerAdapter {  // exten class 
         http.authorizeRequests()
                 .antMatchers("/","index","/css/*","/js/*")// give the match you want to permit
                 .permitAll()// to permit all the requestes
+                .antMatchers("/api/**").hasRole(ApplicationUserRole.ADMIN.name()) // now only admin can access the whole users
                 .anyRequest()
                 .authenticated()
                 .and()
-                .httpBasic();
+                .httpBasic(); // enable basic authentication
     }
 
 
