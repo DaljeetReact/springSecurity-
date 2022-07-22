@@ -3,10 +3,10 @@ package com.singh.blogapp.Security;
 public enum ApplicationUserPermission {
 
     // all permissions are defined here
-    STUDENT_READ("student:read"),
-    STUDENT_WRITE("student:write"),
-    COURSE_READ("course:read"),
-    COURSE_WRITE("course:write");
+    USER_READ("user:read"),
+    USER_WRITE("user:write"),
+    POST_READ("post:read"),
+    POST_WRITE("post:write");
 
     private final  String permission;
 

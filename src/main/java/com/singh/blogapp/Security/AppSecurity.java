@@ -3,6 +3,7 @@ package com.singh.blogapp.Security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -12,6 +13,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+
+import static com.singh.blogapp.Security.ApplicationUserPermission.POST_READ;
+import static com.singh.blogapp.Security.ApplicationUserPermission.POST_WRITE;
+import  static  com.singh.blogapp.Security.ApplicationUserRole.*;
 
 @Configuration //this notation will automatically configure the class
 @EnableWebSecurity // to enable the web security
@@ -32,29 +37,43 @@ public class AppSecurity extends WebSecurityConfigurerAdapter {  // exten class 
         UserDetails user = User.builder()
                 .username("singh")
                 .password(passwordEncoder.encode("singh"))
-                .roles(ApplicationUserRole.STUDENT.name())
+//                .roles(USER.name())
+                .authorities(USER.getGrantedAuthorities())
                 .build();
-
 
         UserDetails user1 = User.builder()
                 .username("daljeet")
                 .password(passwordEncoder.encode("singh"))
-                .roles(ApplicationUserRole.ADMIN.name())
+//                .roles(ADMIN.name())
+                .authorities(ADMIN.getGrantedAuthorities())
+                .build();
+
+        UserDetails user2 = User.builder()
+                .username("gurjeet")
+                .password(passwordEncoder.encode("singh"))
+//                .roles(ADMINTRANEE.name())
+                .authorities(ADMINTRANEE.getGrantedAuthorities())
                 .build();
 
 
         return new InMemoryUserDetailsManager(
-                user,user1
+                user,user1,user2
         );
     }
 
     // TO SEE the list of method to be overide just clik  ( CRTL + O )
     @Override
     protected void configure(HttpSecurity http) throws Exception { // from this method we will override the http requests
-        http.authorizeRequests()
+        http.csrf().disable().
+                authorizeRequests()
                 .antMatchers("/","index","/css/*","/js/*")// give the match you want to permit
                 .permitAll()// to permit all the requestes
-                .antMatchers("/api/**").hasRole(ApplicationUserRole.ADMIN.name()) // now only admin can access the whole users
+                .antMatchers("/api/**").hasRole(USER.name())
+                .antMatchers(HttpMethod.DELETE,"/management/api/**").hasAnyAuthority(POST_WRITE.getPermission())
+                .antMatchers(HttpMethod.POST,"/management/api/**").hasAnyAuthority(POST_WRITE.getPermission())
+                .antMatchers(HttpMethod.PUT,"/management/api/**").hasAnyAuthority(POST_WRITE.getPermission())
+                .antMatchers(HttpMethod.GET,"/management/api/**").hasAnyRole(ADMIN.name(),ADMINTRANEE.name())
+                // now only admin can access the whole users
                 .anyRequest()
                 .authenticated()
                 .and()
