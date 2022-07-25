@@ -79,7 +79,7 @@ public class AppSecurity extends WebSecurityConfigurerAdapter {  // exten class 
                 .anyRequest()
                 .authenticated()
                 .and()
-                .httpBasic(); // enable basic authentication
+                .formLogin(); // enable basic authentication
     }
 
 
