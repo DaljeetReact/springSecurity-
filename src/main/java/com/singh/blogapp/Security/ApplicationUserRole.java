@@ -1,7 +1,6 @@
 package com.singh.blogapp.Security;
 
 import com.google.common.collect.Sets;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Set;
@@ -27,7 +26,8 @@ public enum ApplicationUserRole {
       return  permissions;
    }
 
-   public Set<SimpleGrantedAuthority> getGrantedAuthorities(){
+   public Set<SimpleGrantedAuthority> getGrantedAuthorities(){ // method getGrantedAuthorities with Return type
+      // SimpleGrantedAuthority
         Set<SimpleGrantedAuthority> Authority = getPermissions().stream()
               .map(permissions->new SimpleGrantedAuthority(permissions.getPermission()))
               .collect(Collectors.toSet());
