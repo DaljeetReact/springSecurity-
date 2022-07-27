@@ -80,8 +80,8 @@ public class AppSecurity extends WebSecurityConfigurerAdapter {  // exten class 
                 .authenticated()
                 .and()
                 .formLogin() // enable basic authentication
-                .loginPage("/login").permitAll(); // custom login page
-
+                .loginPage("/login").permitAll() // custom login page
+                .defaultSuccessUrl("/posts" ,true);
 
     }
 

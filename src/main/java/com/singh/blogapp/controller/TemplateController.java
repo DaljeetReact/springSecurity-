@@ -15,7 +15,7 @@ public class TemplateController {
 
     @GetMapping("posts")
     public String GetPostsView(){
-        return "post";
+        return "posts";
     }
 
 
