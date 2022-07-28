@@ -15,6 +15,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
+import java.util.concurrent.TimeUnit;
+
 import static com.singh.blogapp.Security.ApplicationUserPermission.POST_READ;
 import static com.singh.blogapp.Security.ApplicationUserPermission.POST_WRITE;
 import  static  com.singh.blogapp.Security.ApplicationUserRole.*;
@@ -81,7 +83,18 @@ public class AppSecurity extends WebSecurityConfigurerAdapter {  // exten class 
                 .and()
                 .formLogin() // enable basic authentication
                 .loginPage("/login").permitAll() // custom login page
-                .defaultSuccessUrl("/posts" ,true);
+                .defaultSuccessUrl("/posts" ,true)
+                .and()
+                .rememberMe() //last for two week
+                    .tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(21))
+                    .key("mySecureKey")
+                .and()
+                .logout()
+                    .logoutUrl("/logout")
+                    .clearAuthentication(true)
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID","remember-me")
+                    .logoutSuccessUrl("/login");
 
     }
 
