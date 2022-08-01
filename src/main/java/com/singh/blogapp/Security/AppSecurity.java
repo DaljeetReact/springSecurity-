@@ -1,25 +1,20 @@
 package com.singh.blogapp.Security;
 
+import com.singh.blogapp.auth.ApplicationUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.singh.blogapp.Security.ApplicationUserPermission.POST_READ;
-import static com.singh.blogapp.Security.ApplicationUserPermission.POST_WRITE;
-import  static  com.singh.blogapp.Security.ApplicationUserRole.*;
+import static com.singh.blogapp.Security.ApplicationUserRole.USER;
 
 @Configuration //this notation will automatically configure the class
 @EnableWebSecurity // to enable the web security
@@ -28,42 +23,15 @@ public class AppSecurity extends WebSecurityConfigurerAdapter {  // exten class 
 
 
     private final PasswordEncoder passwordEncoder;
+    private  final ApplicationUserService applicationUserServiceic;
 
     @Autowired
-    public AppSecurity(PasswordEncoder passwordEncoder) {
+    public AppSecurity(PasswordEncoder passwordEncoder,ApplicationUserService applicationUserService) {
         this.passwordEncoder = passwordEncoder;
+        this.applicationUserServiceic = applicationUserService;
     }
 
 
-    @Override
-    @Bean
-    protected UserDetailsService userDetailsService() {
-        UserDetails user = User.builder()
-                .username("singh")
-                .password(passwordEncoder.encode("singh"))
-//                .roles(USER.name()) //remove role base permissions
-                .authorities(USER.getGrantedAuthorities()) //adding Authorities to //Role_User
-                .build();
-
-        UserDetails user1 = User.builder()
-                .username("daljeet")
-                .password(passwordEncoder.encode("singh"))
-//                .roles(ADMIN.name())
-                .authorities(ADMIN.getGrantedAuthorities()) //adding Authorities to //Role_ADMIN
-                .build();
-
-        UserDetails user2 = User.builder()
-                .username("gurjeet")
-                .password(passwordEncoder.encode("singh"))
-//                .roles(ADMINTRANEE.name())
-                .authorities(ADMINTRANEE.getGrantedAuthorities()) //adding Authorities to //Role_ADMINTRANEE
-                .build();
-
-
-        return new InMemoryUserDetailsManager(
-                user,user1,user2
-        );
-    }
 
     // TO SEE the list of method to be overide just clik  ( CRTL + O )
     @Override
@@ -96,6 +64,19 @@ public class AppSecurity extends WebSecurityConfigurerAdapter {  // exten class 
                     .deleteCookies("JSESSIONID","remember-me")
                     .logoutSuccessUrl("/login");
 
+    }
+
+    @Override
+    protected  void  configure(AuthenticationManagerBuilder auth) throws  Exception{
+        auth.authenticationProvider(daoAuthenticationProvider());
+    }
+
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider(){
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setUserDetailsService(applicationUserServiceic);
+        return provider;
     }
 
 
